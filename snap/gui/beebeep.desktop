@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=BeeBEEP
+Icon=${SNAP}/meta/gui/icon.png
+Exec=beebeep
+Terminal=false
+Categories=Utility;

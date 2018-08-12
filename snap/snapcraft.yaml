@@ -1,0 +1,57 @@
+name: beebeep
+adopt-info: beebeep
+summary: BeeBeep messenger
+description: |
+  BeeBEEP is an open source, peer to peer, lan messenger developed by
+  Marco Mastroddi. You can talk and share files with all the people
+  inside your local area network such of an office, home or internet cafe.
+  You don't need a server, just download, unzip and start it.
+  Simple, fast and secure.
+
+  You can find the upstream homepage at http://beebeep.sourceforge.net/
+
+grade: stable
+confinement: strict
+
+apps:
+  beebeep:
+    command: desktop-launch $SNAP/beebeep
+    plugs:
+      - desktop
+      - home
+      - network
+      - network-bind
+      - network-manager
+      - opengl
+      - pulseaudio
+      - unity7
+      - x11
+
+parts:
+  beebeep:
+    after: [ desktop-qt4 ]
+    plugin: nil
+    override-build: |
+      set -e
+      # find out what version is the latest
+      L_URL="https://sourceforge.net/projects/beebeep/files/Linux/"
+      LATEST="$(wget -q -O- $L_URL|html2text|grep tar.gz|head -1|sed 's/ .*$//')"
+      # download tarball (as stream)
+      D_URL="https://downloads.sourceforge.net/project/beebeep/Linux"
+      wget -q -O- "${D_URL}/${LATEST}"| zcat | tar x --strip-components=1
+      # copy to target install dir
+      cp -av * $SNAPCRAFT_PART_INSTALL/
+      # set version
+      snapcraftctl set-version "$(echo $LATEST|cut -d '-' -f2)"
+    build-packages:
+      - html2text
+      - tar
+      - wget
+    stage-packages:
+      - gstreamer0.10-plugins-good
+      - libavahi-compat-libdnssd1
+      - libhunspell-dev
+      - libphonon4
+      - libqt4-xml
+      - libxcb-screensaver0
+      - phonon-backend-gstreamer
