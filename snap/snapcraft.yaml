@@ -8,7 +8,7 @@ description: |
   You don't need a server, just download, unzip and start it.
   Simple, fast and secure.
 
-  You can find the upstream homepage at http://beebeep.sourceforge.net/
+  You can find the upstream homepage at https://beebeep.net/
 
 grade: stable
 confinement: strict
