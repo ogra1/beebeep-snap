@@ -1,11 +1,12 @@
 name: beebeep
 adopt-info: beebeep
 summary: BeeBeep messenger
+base: core18
 description: |
   BeeBEEP is an open source, peer to peer, lan messenger developed by
   Marco Mastroddi. You can talk and share files with all the people
   inside your local area network such of an office, home or internet cafe.
-  You don't need a server, just download, unzip and start it.
+  You don't need a server, just download and start it.
   Simple, fast and secure.
 
   You can find the upstream homepage at https://beebeep.net/
@@ -16,6 +17,8 @@ confinement: strict
 apps:
   beebeep:
     command: desktop-launch $SNAP/beebeep
+    environment:
+      ALSA_CONFIG_PATH: /snap/$SNAPCRAFT_PROJECT_NAME/current/usr/share/alsa
     plugs:
       - desktop
       - home
@@ -28,14 +31,61 @@ apps:
       - x11
 
 parts:
+  desktop-qt5:
+    build-packages:
+      - build-essential
+      - qtbase5-dev
+      - dpkg-dev
+    make-parameters:
+      - FLAVOR=qt5
+    plugin: make
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: qt
+    stage-packages:
+      - libxkbcommon0
+      - ttf-ubuntu-font-family
+      - dmz-cursor-theme
+      - light-themes
+      - adwaita-icon-theme
+      - gnome-themes-standard
+      - shared-mime-info
+      - libqt5gui5
+      - libgdk-pixbuf2.0-0
+      - libqt5svg5
+      - try:
+        - appmenu-qt5
+      - locales-all
+      - xdg-user-dirs
+  alsa-lib:
+    plugin: autotools
+    source: ftp://ftp.alsa-project.org/pub/lib/alsa-lib-1.1.5.tar.bz2
+    configflags:
+      - --prefix=/usr
+      - --sysconfdir=/etc
+      - --libexec=/usr/lib
+      - --libdir=/usr/lib
+      - --localstatedir=/var
+      - --with-configdir=/snap/$SNAPCRAFT_PROJECT_NAME/current/usr/share/alsa
+      - --with-plugindir=/snap/$SNAPCRAFT_PROJECT_NAME/current/usr/lib/alsa-lib
+      - --disable-static
+    stage:
+      - usr/include
+      - usr/lib
+    prime:
+      - -usr/bin
+      - -usr/include
+      - -usr/lib/pkgconfig
+      - -usr/share/alsa/alsa.conf
+      - -usr/share/alsa/pcm
+      - -usr/share/alsa/topology/broadwell
   beebeep:
-    after: [ desktop-qt4 ]
+    after: [ alsa-lib, desktop-qt5 ]
     plugin: nil
     override-build: |
       set -e
       # find out what version is the latest
       L_URL="https://sourceforge.net/projects/beebeep/files/Linux/"
-      LATEST="$(wget -q -O- $L_URL|html2text|grep tar.gz|head -1|sed 's/ .*$//')"
+      LATEST="$(wget -q -O- $L_URL|html2text|grep qt5-amd64.tar.gz|head -1|sed 's/ .*$//')"
       # download tarball (as stream)
       D_URL="https://downloads.sourceforge.net/project/beebeep/Linux"
       wget -q -O- "${D_URL}/${LATEST}"| zcat | tar x --strip-components=1
@@ -48,10 +98,17 @@ parts:
       - tar
       - wget
     stage-packages:
-      - gstreamer0.10-plugins-good
+      - libqt5core5a
+      - libqt5gui5
+      - libqt5widgets5
+      - libqt5network5
+      - libqt5printsupport5
+      - libqt5multimedia5
+      - libqt5multimedia5-plugins
+      - libqt5x11extras5
+      - gstreamer1.0-plugins-good
       - libavahi-compat-libdnssd1
-      - libhunspell-dev
-      - libphonon4
-      - libqt4-xml
       - libxcb-screensaver0
-      - phonon-backend-gstreamer
+      - libglu1-mesa
+      - libgpm2
+      - libslang2
