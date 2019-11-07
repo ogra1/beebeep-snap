@@ -24,6 +24,8 @@ apps:
     environment:
       ALSA_CONFIG_PATH: /snap/$SNAPCRAFT_PROJECT_NAME/current/usr/share/alsa
     plugs:
+      - audio-playback
+      - audio-record
       - desktop
       - home
       - network
