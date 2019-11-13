@@ -17,6 +17,8 @@ confinement: strict
 architectures:
   - build-on: amd64
     run-on: amd64
+  - build-on: i386
+    run-on: i386
 
 apps:
   beebeep:
@@ -90,8 +92,10 @@ parts:
     override-build: |
       set -e
       # find out what version is the latest
+      ARCH="$(dpkg --print-architecture)"
+      echo "building for $ARCH"
       L_URL="https://sourceforge.net/projects/beebeep/files/Linux/"
-      LATEST="$(wget -q -O- $L_URL|html2text|grep qt5-amd64.tar.gz|head -1|sed 's/ .*$//')"
+      LATEST="$(wget -q -O- $L_URL|html2text|grep qt5-$ARCH.tar.gz|head -1|sed 's/ .*$//')"
       # download tarball (as stream)
       D_URL="https://downloads.sourceforge.net/project/beebeep/Linux"
       wget -q -O- "${D_URL}/${LATEST}"| zcat | tar x --strip-components=1
