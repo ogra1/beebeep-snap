@@ -35,6 +35,7 @@ apps:
       - network-manager
       - opengl
       - pulseaudio
+      - removable-media
       - unity7
       - x11
 
