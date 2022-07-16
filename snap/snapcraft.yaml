@@ -13,6 +13,7 @@ description: |
 
 grade: stable
 confinement: strict
+compression: lzo
 
 architectures:
   - build-on: amd64
@@ -22,9 +23,11 @@ architectures:
 
 apps:
   beebeep:
-    command: desktop-launch $SNAP/beebeep
+    command: beebeep
     environment:
       ALSA_CONFIG_PATH: /snap/$SNAPCRAFT_PROJECT_NAME/current/usr/share/alsa
+    extensions:
+      - kde-neon
     plugs:
       - audio-playback
       - audio-record
@@ -32,39 +35,13 @@ apps:
       - home
       - network
       - network-bind
-      - network-manager
+      - network-manager-observe
       - opengl
-      - pulseaudio
       - removable-media
       - unity7
       - x11
 
 parts:
-  desktop-qt5:
-    build-packages:
-      - build-essential
-      - qtbase5-dev
-      - dpkg-dev
-    make-parameters:
-      - FLAVOR=qt5
-    plugin: make
-    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
-    source-subdir: qt
-    stage-packages:
-      - libxkbcommon0
-      - ttf-ubuntu-font-family
-      - dmz-cursor-theme
-      - light-themes
-      - adwaita-icon-theme
-      - gnome-themes-standard
-      - shared-mime-info
-      - libqt5gui5
-      - libgdk-pixbuf2.0-0
-      - libqt5svg5
-      - try:
-        - appmenu-qt5
-      - locales-all
-      - xdg-user-dirs
   alsa-lib:
     plugin: autotools
     source: https://www.alsa-project.org/files/pub/lib/alsa-lib-1.1.5.tar.bz2
@@ -74,21 +51,19 @@ parts:
       - --libexec=/usr/lib
       - --libdir=/usr/lib
       - --localstatedir=/var
-      - --with-configdir=/snap/$SNAPCRAFT_PROJECT_NAME/current/usr/share/alsa
-      - --with-plugindir=/snap/$SNAPCRAFT_PROJECT_NAME/current/usr/lib/alsa-lib
       - --disable-static
     stage:
       - usr/include
       - usr/lib
+      - usr/share
     prime:
       - -usr/bin
       - -usr/include
       - -usr/lib/pkgconfig
-      - -usr/share/alsa/alsa.conf
-      - -usr/share/alsa/pcm
-      - -usr/share/alsa/topology/broadwell
+      - -usr/share/aclocal
+      - -usr/share/lintian
   beebeep:
-    after: [ alsa-lib, desktop-qt5 ]
+    after: [ alsa-lib ]
     plugin: nil
     override-build: |
       set -e
@@ -109,17 +84,8 @@ parts:
       - tar
       - wget
     stage-packages:
-      - libqt5core5a
-      - libqt5gui5
-      - libqt5widgets5
-      - libqt5network5
-      - libqt5printsupport5
-      - libqt5multimedia5
-      - libqt5multimedia5-plugins
-      - libqt5x11extras5
-      - gstreamer1.0-plugins-good
-      - libavahi-compat-libdnssd1
+      #      - gstreamer1.0-plugins-good
+      #      - libavahi-compat-libdnssd1
       - libxcb-screensaver0
-      - libglu1-mesa
       - libgpm2
       - libslang2
